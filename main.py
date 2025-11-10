@@ -3,6 +3,7 @@ import sys
 import math
 import random
 #tôi đep trai
+#hoặc không
 
 pygame.init()
 WIDTH, HEIGHT = 1280, 720
