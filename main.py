@@ -5,7 +5,7 @@ import random
 #tôi đep trai
 #hoặc không
 #3gio48
-
+#5gio49
 #quach thien phuc
 
 pygame.init()
