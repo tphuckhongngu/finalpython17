@@ -7,6 +7,7 @@ import random
 #3gio48
 #5gio49
 #quach thien phuc
+#kkkk
 
 pygame.init()
 WIDTH, HEIGHT = 1280, 720
