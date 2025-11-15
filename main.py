@@ -2,13 +2,6 @@ import pygame
 import sys
 import math
 import random
-#tôi đep trai
-#hoặc không
-#3gio48
-#5gio49
-#8:30
-#quach thien phuc
-#kkkk
 
 pygame.init()
 WIDTH, HEIGHT = 1280, 720
