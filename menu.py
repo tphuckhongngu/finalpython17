@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Chiến Binh Chống Rác Thải - Màn hình menu & demo gameplay console
-Tác giả: ChatGPT
+Tác giả: ...
 Mô tả: Một chương trình Python chạy trên terminal mô phỏng menu dựa theo cốt truyện.
 - Ngôn ngữ: Tiếng Việt
 - Chạy: python3 menu.py
@@ -265,3 +265,4 @@ if __name__ == '__main__':
         main_menu()
     except KeyboardInterrupt:
         slow_print('\nThoát chương trình. Hẹn gặp lại!')
+
