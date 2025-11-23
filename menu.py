@@ -1,12 +1,4 @@
-#!/usr/bin/env python3
-"""
-Chiến Binh Chống Rác Thải - Màn hình menu & demo gameplay console
-Tác giả: ...
-Mô tả: Một chương trình Python chạy trên terminal mô phỏng menu dựa theo cốt truyện.
-- Ngôn ngữ: Tiếng Việt
-- Chạy: python3 menu.py
-"""
-
+#jjj
 import random
 import sys
 import time
