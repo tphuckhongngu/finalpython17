@@ -2,6 +2,7 @@ import pygame
 import sys
 import math
 import random
+#huong333
 
 pygame.init()
 WIDTH, HEIGHT = 1280, 720
