@@ -29,7 +29,9 @@ game_state = MENU
 # --- Load Player Animations ---
 player_animations = {"down": [], "up": [], "left": [], "right": []}
 
-base_path = "player"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+base_path = os.path.join(BASE_DIR, "player")
+
 if not os.path.exists(base_path):
     print(f"Thư mục '{base_path}' không tồn tại!")
     pygame.quit()
@@ -73,8 +75,9 @@ animation_cooldown = 0
 ANIMATION_SPEED = 8
 
 # --- Map Manager ---
+map_path = os.path.join(BASE_DIR, "maps")
 map_manager = MapManager(WIDTH, HEIGHT)
-map_manager.load_all_maps("maps")
+map_manager.load_all_maps(map_path)
 
 # --- Bullet ---
 bullets = []

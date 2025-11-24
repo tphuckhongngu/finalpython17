@@ -14,7 +14,7 @@ class NPC:
         self.load_images()
     
     def load_images(self):
-        base_path = "npc"
+        base_path = os.path.join(os.path.dirname(__file__), "npc")
         image_names = ["down", "up", "left", "right"]  # ← Dùng .png
         for name in image_names:
             img_path = os.path.join(base_path, f"{name}.png")  # ← .png
