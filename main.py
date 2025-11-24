@@ -1,10 +1,15 @@
 import pygame
 import sys
+sys.stdout.reconfigure(encoding='utf-8')
 import math
 import random
 import os
 from maps import MapManager
 from npc import NPC
+
+
+
+
 
 # Khởi tạo Pygame
 pygame.init()
