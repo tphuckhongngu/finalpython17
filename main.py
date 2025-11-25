@@ -151,6 +151,15 @@ while True:
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:  # Chuột trái
                 mouse_clicked = True
+                # Kiểm tra click nút Main Menu khi đang PAUSED
+                if game_state == PAUSED:
+                    # Định nghĩa lại vị trí nút y hệt lúc vẽ
+                    menu_btn_rect = pygame.Rect(WIDTH // 2 - 100, HEIGHT // 2, 200, 50)
+                    
+                    # Kiểm tra chuột có nằm trong nút không
+                    if menu_btn_rect.collidepoint(event.pos):
+                        game_state = MENU  # Chuyển về menu chính
+                        # (Lưu ý: Game sẽ được reset khi bạn nhấn SPACE ở Menu)
 
         if event.type == pygame.KEYDOWN:
             if game_state == PLAYING:
@@ -338,6 +347,12 @@ while True:
         
         # Vẽ chữ "PAUSED"
         pause_text = font.render("PAUSED", True, (255, 255, 255))
-        screen.blit(pause_text, (WIDTH // 2 - pause_text.get_width() // 2, HEIGHT // 2 - pause_text.get_height() // 2))
+        screen.blit(pause_text, (WIDTH // 2 - pause_text.get_width() // 2, HEIGHT // 2 - 200))
+        # Vẽ nút "Main Menu"
+        menu_btn_rect = pygame.Rect(WIDTH // 2 - 100, HEIGHT // 2, 200, 50)
+        pygame.draw.rect(screen, (255, 255, 255), menu_btn_rect, border_radius=10)
+        btn_text = small_font.render("Main Menu", True, (0, 0, 0)) # Chữ màu đen
+        text_rect = btn_text.get_rect(center=menu_btn_rect.center) # Căn giữa chữ vào nút
+        screen.blit(btn_text, text_rect)
     pygame.display.flip()
     clock.tick(60)
