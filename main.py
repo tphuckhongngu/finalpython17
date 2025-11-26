@@ -214,10 +214,10 @@ while True:
     # --- Player Movement & Animation ---
     if game_state == PLAYING:
         move_x = move_y = 0
-        if keys[pygame.K_w]: move_y -= player_speed
-        if keys[pygame.K_s]: move_y += player_speed
-        if keys[pygame.K_a]: move_x -= player_speed
-        if keys[pygame.K_d]: move_x += player_speed
+        if keys[pygame.K_w] or keys[pygame.K_UP]: move_y -= player_speed
+        if keys[pygame.K_s] or keys[pygame.K_DOWN]: move_y += player_speed
+        if keys[pygame.K_a] or keys[pygame.K_LEFT]: move_x -= player_speed
+        if keys[pygame.K_d] or keys[pygame.K_RIGHT]: move_x += player_speed
 
         moving = move_x != 0 or move_y != 0
         if moving:
