@@ -24,7 +24,6 @@ clock = pygame.time.Clock()
 MENU = 0
 PLAYING = 1
 GAME_OVER = 2
-PAUSED = 3
 game_state = MENU
 
 # --- Load Player Animations ---
@@ -151,23 +150,7 @@ while True:
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:  # Chuột trái
                 mouse_clicked = True
-                # Kiểm tra click nút Main Menu khi đang PAUSED
-                if game_state == PAUSED:
-                    # Định nghĩa lại vị trí nút y hệt lúc vẽ
-                    menu_btn_rect = pygame.Rect(WIDTH // 2 - 100, HEIGHT // 2, 200, 50)
-                    
-                    # Kiểm tra chuột có nằm trong nút không
-                    if menu_btn_rect.collidepoint(event.pos):
-                        game_state = MENU  # Chuyển về menu chính
-                        # (Lưu ý: Game sẽ được reset khi bạn nhấn SPACE ở Menu)
 
-        if event.type == pygame.KEYDOWN:
-            if game_state == PLAYING:
-                if event.key == pygame.K_p:  # Nhấn 'P' để tạm dừng
-                    game_state = PAUSED
-            elif game_state == PAUSED:
-                if event.key == pygame.K_p:  # Nhấn 'P' để tiếp tục
-                    game_state = PLAYING
     keys = pygame.key.get_pressed()
     mouse_buttons = pygame.mouse.get_pressed()
 
@@ -212,100 +195,108 @@ while True:
 
     # ================= GAMEPLAY =================
     # --- Player Movement & Animation ---
+<<<<<<< HEAD
     if game_state == PLAYING:
         move_x = move_y = 0
         if keys[pygame.K_w] or keys[pygame.K_UP]: move_y -= player_speed
         if keys[pygame.K_s] or keys[pygame.K_DOWN]: move_y += player_speed
         if keys[pygame.K_a] or keys[pygame.K_LEFT]: move_x -= player_speed
         if keys[pygame.K_d] or keys[pygame.K_RIGHT]: move_x += player_speed
+=======
+    move_x = move_y = 0
+    if keys[pygame.K_w] or keys[pygame.K_UP]: move_y -= player_speed
+    if keys[pygame.K_s] or keys[pygame.K_DOWN]: move_y += player_speed
+    if keys[pygame.K_a] or keys[pygame.K_LEFT]: move_x -= player_speed
+    if keys[pygame.K_d] or keys[pygame.K_RIGHT]: move_x += player_speed
+>>>>>>> eadd0500a445330ac4f5b2abfb31c9acec5d1e39
 
-        moving = move_x != 0 or move_y != 0
-        if moving:
-            player_pos.x += move_x
-            player_pos.y += move_y
-            if abs(move_x) > abs(move_y):
-                current_direction = "right" if move_x > 0 else "left"
-            else:
-                current_direction = "down" if move_y > 0 else "up"
-
-            animation_cooldown += 1
-            if animation_cooldown >= ANIMATION_SPEED:
-                current_frame = (current_frame + 1) % 4
-                animation_cooldown = 0
+    moving = move_x != 0 or move_y != 0
+    if moving:
+        player_pos.x += move_x
+        player_pos.y += move_y
+        if abs(move_x) > abs(move_y):
+            current_direction = "right" if move_x > 0 else "left"
         else:
-            current_frame = 0
-            current_direction = "down"
+            current_direction = "down" if move_y > 0 else "up"
 
-        player_pos.x = max(40, min(WIDTH - 40, player_pos.x))
-        player_pos.y = max(40, min(HEIGHT - 40, player_pos.y))
+        animation_cooldown += 1
+        if animation_cooldown >= ANIMATION_SPEED:
+            current_frame = (current_frame + 1) % 4
+            animation_cooldown = 0
+    else:
+        current_frame = 0
+        current_direction = "down"
 
-        # --- Shooting ---
-        if mouse_buttons[0] and shoot_cooldown == 0:
-            mx, my = pygame.mouse.get_pos()
-            angle = math.atan2(my - player_pos.y, mx - player_pos.x)
-            bullets.append([pygame.Vector2(player_pos), angle])
-            shoot_cooldown = 10
-        if shoot_cooldown > 0:
-            shoot_cooldown -= 1
+    player_pos.x = max(40, min(WIDTH - 40, player_pos.x))
+    player_pos.y = max(40, min(HEIGHT - 40, player_pos.y))
 
-        # --- Spawn Enemies ---
-        spawn_timer += 1
-        if spawn_timer >= spawn_delay:
-            spawn_timer = 0
-            spawn_enemy()
+    # --- Shooting ---
+    if mouse_buttons[0] and shoot_cooldown == 0:
+        mx, my = pygame.mouse.get_pos()
+        angle = math.atan2(my - player_pos.y, mx - player_pos.x)
+        bullets.append([pygame.Vector2(player_pos), angle])
+        shoot_cooldown = 10
+    if shoot_cooldown > 0:
+        shoot_cooldown -= 1
 
-        # --- Update Bullets ---
-        for bullet in bullets[:]:
-            bullet[0].x += math.cos(bullet[1]) * bullet_speed
-            bullet[0].y += math.sin(bullet[1]) * bullet_speed
-            if not (0 < bullet[0].x < WIDTH and 0 < bullet[0].y < HEIGHT):
-                bullets.remove(bullet)
+    # --- Spawn Enemies ---
+    spawn_timer += 1
+    if spawn_timer >= spawn_delay:
+        spawn_timer = 0
+        spawn_enemy()
 
-        # --- Update Enemies ---
+    # --- Update Bullets ---
+    for bullet in bullets[:]:
+        bullet[0].x += math.cos(bullet[1]) * bullet_speed
+        bullet[0].y += math.sin(bullet[1]) * bullet_speed
+        if not (0 < bullet[0].x < WIDTH and 0 < bullet[0].y < HEIGHT):
+            bullets.remove(bullet)
+
+    # --- Update Enemies ---
+    for enemy in enemies[:]:
+        if player_pos.distance_to(enemy) > 0.1:
+            direction = (player_pos - enemy).normalize()
+            enemy.x += direction.x * enemy_speed
+            enemy.y += direction.y * enemy_speed
+        if enemy.distance_to(player_pos) < 40:
+            enemies.remove(enemy)
+            player_health -= 10
+            if player_health <= 0:
+                player_health = 0
+                game_state = GAME_OVER
+
+    # --- Bullet - Enemy Collision ---
+    for bullet in bullets[:]:
+        hit = False
         for enemy in enemies[:]:
-            if player_pos.distance_to(enemy) > 0.1:
-                direction = (player_pos - enemy).normalize()
-                enemy.x += direction.x * enemy_speed
-                enemy.y += direction.y * enemy_speed
-            if enemy.distance_to(player_pos) < 40:
-                enemies.remove(enemy)
-                player_health -= 10
-                if player_health <= 0:
-                    player_health = 0
-                    game_state = GAME_OVER
+            if enemy.distance_to(bullet[0]) < 40:
+                if bullet in bullets:
+                    bullets.remove(bullet)
+                if enemy in enemies:
+                    enemies.remove(enemy)
+                hit = True
+                break
+        if hit:
+            break
 
-        # --- Bullet - Enemy Collision ---
-        for bullet in bullets[:]:
-            hit = False
-            for enemy in enemies[:]:
-                if enemy.distance_to(bullet[0]) < 40:
-                    if bullet in bullets:
-                        bullets.remove(bullet)
-                    if enemy in enemies:
-                        enemies.remove(enemy)
-                    hit = True
-                    break
-            if hit:
+    # --- Update NPC Animation ---
+    for npc in npcs:
+        npc.update()
+
+    # --- NPC Tương tác bằng chuột ---
+    if mouse_clicked and not dialog_active:
+        for npc in npcs:
+            if npc.is_near(player_pos):
+                dialog_active = True
+                dialog_text = "Chào bạn! NPC đã nói!"
+                dialog_timer = DIALOG_DURATION
                 break
 
-        # --- Update NPC Animation ---
-        for npc in npcs:
-            npc.update()
-
-        # --- NPC Tương tác bằng chuột ---
-        if mouse_clicked and not dialog_active:
-            for npc in npcs:
-                if npc.is_near(player_pos):
-                    dialog_active = True
-                    dialog_text = "Chào bạn! NPC đã nói!"
-                    dialog_timer = DIALOG_DURATION
-                    break
-
-        # --- Cập nhật timer dialog ---
-        if dialog_active:
-            dialog_timer -= 1
-            if dialog_timer <= 0:
-                dialog_active = False
+    # --- Cập nhật timer dialog ---
+    if dialog_active:
+        dialog_timer -= 1
+        if dialog_timer <= 0:
+            dialog_active = False
 
     # --- DRAW EVERYTHING ---
     map_manager.draw(screen)
@@ -338,21 +329,6 @@ while True:
         pygame.draw.rect(screen, (0, 0, 50), bg_rect, border_radius=12)
         pygame.draw.rect(screen, (255, 255, 255), bg_rect, 3, border_radius=12)
         screen.blit(dialog_surf, (npc.pos.x - dialog_surf.get_width() // 2, npc.pos.y - 95))
-    #Vẽ màn hình PAUSE
-    if game_state == PAUSED:
-        # Tạo một lớp phủ mờ (overlay)
-        pause_overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
-        pause_overlay.fill((0, 0, 0, 150))  # Màu đen, 150/255 độ mờ
-        screen.blit(pause_overlay, (0, 0))
-        
-        # Vẽ chữ "PAUSED"
-        pause_text = font.render("PAUSED", True, (255, 255, 255))
-        screen.blit(pause_text, (WIDTH // 2 - pause_text.get_width() // 2, HEIGHT // 2 - 200))
-        # Vẽ nút "Main Menu"
-        menu_btn_rect = pygame.Rect(WIDTH // 2 - 100, HEIGHT // 2, 200, 50)
-        pygame.draw.rect(screen, (255, 255, 255), menu_btn_rect, border_radius=10)
-        btn_text = small_font.render("Main Menu", True, (0, 0, 0)) # Chữ màu đen
-        text_rect = btn_text.get_rect(center=menu_btn_rect.center) # Căn giữa chữ vào nút
-        screen.blit(btn_text, text_rect)
+
     pygame.display.flip()
     clock.tick(60)
