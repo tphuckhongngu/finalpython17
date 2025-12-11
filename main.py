@@ -6,7 +6,7 @@ import random
 import os
 from maps import MapManager
 from npc import NPC
-
+from enemy import Enemy
 
 
 
@@ -86,13 +86,15 @@ bullet_speed = 15
 shoot_cooldown = 0
 
 # --- Enemies ---
-enemies = []
+enemies = pygame.sprite.Group() # Dùng Sprite Group để quản lý dễ hơn
 enemy_size = 50
 enemy_speed = 2
 spawn_delay = 60
 spawn_timer = 0
+
+# Tạo hình ảnh kẻ địch *một lần*
 enemy_img = pygame.Surface((enemy_size, enemy_size), pygame.SRCALPHA)
-pygame.draw.circle(enemy_img, (200, 50, 50), (enemy_size//2, enemy_size//2), enemy_size//2 - 5)
+pygame.draw.circle(enemy_img, (200, 50, 50), (enemy_size//2, enemy_size//2), enemy_size//2) # Tăng kích thước hình vẽ cho khớp
 
 # --- Fonts ---
 font = pygame.font.SysFont(None, 48)
@@ -114,7 +116,7 @@ def reset_game():
     player_pos = pygame.Vector2(WIDTH // 2, HEIGHT // 2)
     player_health = 100
     bullets = []
-    enemies = []
+    enemies.empty() # Dùng .empty() để xóa tất cả sprite trong group
     spawn_timer = 0
     current_direction = "down"
     current_frame = 0
@@ -136,7 +138,10 @@ def spawn_enemy():
         pos = [-enemy_size, random.randint(0, HEIGHT)]
     elif side == "right":
         pos = [WIDTH + enemy_size, random.randint(0, HEIGHT)]
-    enemies.append(pygame.Vector2(pos))
+    
+    # Tạo đối tượng Enemy mới và thêm vào group
+    new_enemy = Enemy(pos, enemy_size, enemy_speed, enemy_img)
+    enemies.add(new_enemy)
 
 # ====================================================
 # MAIN GAME LOOP
@@ -262,30 +267,38 @@ while True:
                 bullets.remove(bullet)
 
         # --- Update Enemies ---
-        for enemy in enemies[:]:
-            if player_pos.distance_to(enemy) > 0.1:
-                direction = (player_pos - enemy).normalize()
-                enemy.x += direction.x * enemy_speed
-                enemy.y += direction.y * enemy_speed
-            if enemy.distance_to(player_pos) < 40:
-                enemies.remove(enemy)
+        for enemy in enemies: # Lặp qua tất cả sprite trong group
+            enemy.update(player_pos) # Gọi phương thức update của Enemy
+        
+            # Kiểm tra va chạm với người chơi
+            if enemy.check_collision_with_player(player_pos):
+                enemy.kill() # Xóa kẻ địch khỏi group
                 player_health -= 10
                 if player_health <= 0:
                     player_health = 0
                     game_state = GAME_OVER
-
-        # --- Bullet - Enemy Collision ---
+        # --- Bullet - Enemy Collision (Đã sửa) ---
         for bullet in bullets[:]:
-            hit = False
-            for enemy in enemies[:]:
-                if enemy.distance_to(bullet[0]) < 40:
-                    if bullet in bullets:
-                        bullets.remove(bullet)
-                    if enemy in enemies:
-                        enemies.remove(enemy)
-                    hit = True
+            bullet_pos_vec = bullet[0]
+            hit_enemy = None
+            
+            # Lặp qua tất cả kẻ địch trong Sprite Group
+            for enemy in enemies: 
+                # Sử dụng phương thức check_collision_with_bullet đã định nghĩa trong lớp Enemy
+                if enemy.check_collision_with_bullet(bullet_pos_vec):
+                    hit_enemy = enemy
                     break
-            if hit:
+
+            if hit_enemy:
+                # Xử lý xóa đạn và kẻ địch
+                if bullet in bullets:
+                    bullets.remove(bullet)
+                
+                # Phương thức .kill() an toàn hơn để xóa Sprite khỏi Group
+                hit_enemy.kill() 
+                
+                # Nếu đạn chỉ xuyên qua 1 kẻ địch, bạn cần break khỏi vòng lặp đạn
+                # để tránh lỗi index khi xóa đạn.
                 break
 
         # --- Update NPC Animation ---
@@ -319,8 +332,7 @@ while True:
         pygame.draw.circle(screen, (255, 255, 0), (int(bullet[0].x), int(bullet[0].y)), 6)
 
     # Vẽ kẻ địch
-    for enemy in enemies:
-        screen.blit(enemy_img, (enemy.x - enemy_size // 2, enemy.y - enemy_size // 2))
+    enemies.draw(screen)
 
     # Vẽ NPC
     for npc in npcs:
